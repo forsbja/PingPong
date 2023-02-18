@@ -25,91 +25,91 @@ class ObjSocket(private val skt: Socket) {
     }
 }
 
-    fun serveClient(skt: ObjSocket, gameNum: Int) {
-        try {
-            println("starting game $gameNum with ${skt.remoteAddr}")
-            var server = false
-            while (true) {
-                Thread.sleep(1000)
-                val flip = (0..1).random()
-                val clientVal = skt.read() as Int
-                if (clientVal == flip) { //Tie
-                    println("GAME $gameNum: coin toss tie; try again")
-                    skt.write("tie")
-                } else if (clientVal > flip) { //Client won
-                    println("GAME $gameNum: lost the coin toss; returning serve")
-                    skt.write("win")
-                    break
-                } else { //Server win
-                    println("GAME $gameNum: won the coin toss")
-                    skt.write("lose")
-                    server = true
-                    break
-                }
+fun serveClient(skt: ObjSocket, gameNum: Int) {
+    try {
+        println("starting game $gameNum with ${skt.remoteAddr}")
+        var server = false
+        while (true) {
+            Thread.sleep(1000)
+            val flip = (0..1).random()
+            val clientVal = skt.read() as Int
+            if (clientVal == flip) { //Tie
+                println("GAME $gameNum: coin toss tie; try again")
+                skt.write("tie")
+            } else if (clientVal > flip) { //Client won
+                println("GAME $gameNum: lost the coin toss; returning serve")
+                skt.write("win")
+                break
+            } else { //Server win
+                println("GAME $gameNum: won the coin toss")
+                skt.write("lose")
+                server = true
+                break
             }
-
-            if(server) {
-                val temp = skt.read()
-                println("GAME $gameNum: serve!")
-                skt.write(temp)
-            }
-
-            while (true) {
-                val ball = try {
-                    skt.read()
-                } catch (e: EOFException) {
-                    // this exception signifies that the client has severed
-                    // the connection
-                    break
-                }
-                when(server) {
-                    true -> println("GAME $gameNum: received pong")
-                    false -> println("GAME $gameNum: received ping")
-                }
-                skt.write(ball)
-                Thread.sleep(1000)
-            }
-        } catch (e: InterruptedException) {
-            println(e)
-        } catch (e: IOException) {
-            println(e)
         }
-    }
 
-    fun client(skt: ObjSocket) {
-        try {
-            //Coin flip
-            val ball = Ball()
-            var server = false
-            while(true) {
-                Thread.sleep(1000)
-                skt.write((0..1).random())
-                val serverVal = skt.read() as String
-                if( serverVal == "tie") {
-                    println("CLIENT: coin toss tie; try again")
-                    continue
-                } else if (serverVal == "win") {
-                    println("CLIENT: won the coin toss")
-                    println("CLIENT: serve!")
-                    server = true
-                    break
-                } else {
-                    println("CLIENT: lost the coin toss; returning serve")
-                    break
-                }
+        if(server) {
+            val temp = skt.read()
+            println("GAME $gameNum: serve!")
+            skt.write(temp)
+        }
+
+        while (true) {
+            val ball = try {
+                skt.read()
+            } catch (e: EOFException) {
+                // this exception signifies that the client has severed
+                // the connection
+                break
+            }
+            when(server) {
+                true -> println("GAME $gameNum: received pong")
+                false -> println("GAME $gameNum: received ping")
             }
             skt.write(ball)
+            Thread.sleep(1000)
+        }
+    } catch (e: InterruptedException) {
+        println(e)
+    } catch (e: IOException) {
+        println(e)
+    }
+}
 
-            //In game
-            while(true){
-                skt.read()
-                when(server) {
-                    true -> println("CLIENT: received pong")
-                    false -> println("CLIENT: received ping")
-                }
-                skt.write(ball)
-                Thread.sleep(1000)
+fun client(skt: ObjSocket) {
+    try {
+        //Coin flip
+        val ball = Ball()
+        var server = false
+        while(true) {
+            Thread.sleep(1000)
+            skt.write((0..1).random())
+            val serverVal = skt.read() as String
+            if( serverVal == "tie") {
+                println("CLIENT: coin toss tie; try again")
+                continue
+            } else if (serverVal == "win") {
+                println("CLIENT: won the coin toss")
+                println("CLIENT: serve!")
+                server = true
+                break
+            } else {
+                println("CLIENT: lost the coin toss; returning serve")
+                break
             }
+        }
+        skt.write(ball)
+
+        //In game
+        while(true){
+            skt.read()
+            when(server) {
+                true -> println("CLIENT: received pong")
+                false -> println("CLIENT: received ping")
+            }
+            skt.write(ball)
+            Thread.sleep(1000)
+        }
     } catch (e: InterruptedException) {
         println(e)
     } catch (e: IOException) {
