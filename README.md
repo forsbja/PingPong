@@ -1,5 +1,5 @@
 # Summary
-This program takes a server and any number of clients to function. When a client is connected to a server, a coin flip is held to determine who the server will be. They then pass an empty "ball" object around to simulate the game being played. Depending on who won the coin flip, the server and client will output the corresponding "ping" or "pong" to the console. THe server is multithreaded to allow it to connect and play "games" with multiple clients at once, and will track which game it is outputting.
+This program takes a server and any number of clients to function. When a client is connected to a server, a coin flip is held to determine who the server will be. They then pass an empty "ball" object around to simulate the game being played. Depending on who won the coin flip, the server and client will output the corresponding "ping" or "pong" to the console. The server is multithreaded to allow it to connect and play "games" with multiple clients at once, and will track which game it is outputting.
 
 This currently supports running as a server, a client, or a servent.
 
